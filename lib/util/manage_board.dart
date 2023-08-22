@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../global.dart';
-import '../main.dart';
 
 class PaintBoard extends CustomPainter {
   final List<String> content;
@@ -75,8 +74,8 @@ class PaintBoard extends CustomPainter {
           text: TextSpan(
             text: content[index],
             style: GoogleFonts.audiowide(
-                textStyle:
-                    const TextStyle(fontSize: 30, color: Colors.black87)),
+                textStyle: const TextStyle(
+                    fontSize: Global.fontSize, color: Colors.black87)),
           ),
           textDirection: TextDirection.ltr,
           textAlign: TextAlign.center);

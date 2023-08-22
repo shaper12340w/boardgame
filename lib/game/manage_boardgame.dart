@@ -8,7 +8,7 @@ class BoardGame extends FlameGame {
   BoardGame({super.children});
 
   final Background background = Background();
-
+  List<BoardGamePlayer> playerList = [];
   @override
   Future<void> onLoad() async {
     for (int index = 1; index <= Global.memberCount; index++) {
@@ -16,6 +16,7 @@ class BoardGame extends FlameGame {
       player.width = 50;
       player.height = 50;
       await add(player);
+      playerList.add(player);
     }
     await add(background);
   }

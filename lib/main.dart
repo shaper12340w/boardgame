@@ -5,7 +5,6 @@ import 'package:flame/game.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import './util/color_schemes.dart';
-import './util/manage_board.dart';
 import './util/check_platform.dart';
 
 import './game/manage_boardgame.dart';
@@ -39,24 +38,7 @@ class BoardGameBoardState extends State<BoardGameBoard> {
 
   void moveMember() {
     setState(() {
-      /**
-      if (userPosition[moveUser] % Global.size == 0) {
-        switch (haveToMove) {
-          case "right":
-            haveToMove = "down";
-            break;
-          case "down":
-            haveToMove = "left";
-            break;
-          case "left":
-            haveToMove = "up";
-            break;
-          case "up":
-            gameWin(moveUser);
-            break;
-        }
-      }
-      */
+      Global.memberPosition[0]++;
     });
   }
 

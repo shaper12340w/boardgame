@@ -1,8 +1,9 @@
 import 'package:flame/game.dart';
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
-
+import 'package:flame/effects.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/widgets.dart';
 
 import './manage_boardgame.dart';
 import '../global.dart';
@@ -23,7 +24,7 @@ class BoardGamePlayer extends SpriteGroupComponent<PlayerState>
   Vector2 pos = Vector2(100, 100);
 
   late int playerNum;
-  bool moving = false;
+  int currentPosition = 0;
   Map<String, double> settings = {
     "velocity": 0,
     "acceleration": 0.1,
@@ -43,60 +44,67 @@ class BoardGamePlayer extends SpriteGroupComponent<PlayerState>
     current = PlayerState.normal;
   }
 
-  Vector2 setPosition() {
+  bool checkCondition(int index) =>
+      Global.memberPosition[index] != 0 &&
+      Global.memberPosition[index] !=
+          Global.memberPosition.indexWhere((value) => value == 0) &&
+      Global.memberPosition
+          .where((value) => value != 0 && value == Global.memberPosition[index])
+          .isNotEmpty;
+
+  void _setPosition(Vector2 vector) {
+    position = vector;
+    pos = vector;
+  }
+
+  void setPosition() {
     var mapData = Global.positionMap;
     if (mapData.isNotEmpty) {
+      //Mapdata가 있을 경우
       if (Global.memberPosition[playerNum - 1] == 0) {
+        //맵 위치가 0일경우
         final smallRectSize = (Global.rectSize / Global.size) / 4;
         switch (playerNum) {
           case 1:
-            return Vector2(
-                mapData[0][0] - smallRectSize, mapData[0][1] - smallRectSize);
+            _setPosition(Vector2(
+                mapData[0][0] - smallRectSize, mapData[0][1] - smallRectSize));
           case 2:
-            return Vector2(
-                mapData[0][0] + smallRectSize, mapData[0][1] - smallRectSize);
+            _setPosition(Vector2(
+                mapData[0][0] + smallRectSize, mapData[0][1] - smallRectSize));
           case 3:
-            return Vector2(
-                mapData[0][0] - smallRectSize, mapData[0][1] + smallRectSize);
+            _setPosition(Vector2(
+                mapData[0][0] - smallRectSize, mapData[0][1] + smallRectSize));
           case 4:
-            return Vector2(
-                mapData[0][0] + smallRectSize, mapData[0][1] + smallRectSize);
+            _setPosition(Vector2(
+                mapData[0][0] + smallRectSize, mapData[0][1] + smallRectSize));
           default:
             throw Exception("not valid memberCount");
         }
       } else {
-        return Vector2(mapData[Global.memberPosition[playerNum - 1]][0],
+        // 위치가 0이 아닐 경우 포지션으로 설정
+        /**
+          return Vector2(mapData[Global.memberPosition[playerNum - 1]][0],
             mapData[Global.memberPosition[playerNum - 1]][1]);
+         */
+        if (Global.memberPosition[playerNum - 1] != currentPosition) {
+          currentPosition = Global.memberPosition[playerNum - 1];
+          final changedPos = mapData[Global.memberPosition[playerNum - 1]];
+          final changedVector = Vector2(changedPos[0], changedPos[1]);
+          final moveEffect = MoveEffect.to(changedVector, onComplete: () {
+            _setPosition(changedVector);
+          }, EffectController(duration: 1, curve: Curves.easeInOut));
+          add(moveEffect);
+        }
       }
     } else {
-      return pos;
+      _setPosition(pos);
     }
   }
 
   @override
   void update(double dt) {
-    position = setPosition();
+    setPosition();
     super.update(dt);
-    if (Global.positionMap.isEmpty) {
-      return;
-    }
-    final playerIndex = playerNum - 1;
-    final nowPosition = Global.positionMap[Global.memberPosition[playerIndex]];
-    bool checkCondition(int index) =>
-        Global.memberPosition[index] != 0 &&
-        Global.memberPosition[index] !=
-            Global.memberPosition.indexWhere((value) => value == 0) &&
-        Global.memberPosition
-            .where(
-                (value) => value != 0 && value == Global.memberPosition[index])
-            .isNotEmpty;
-    if (!moving && !eq(nowPosition, [position.x, position.y])) {
-      moving = true;
-      if (checkCondition(playerNum - 1)) {
-        //0을 제외하고 자신을 제외한 다른 플레이어가 있을때 => 겹칠때
-      }
-      // 자신이 0에 있을때 추가
-    } else if (moving) {}
   }
 
   Future<void> _loadCharacterSprites() async {
