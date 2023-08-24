@@ -11,6 +11,18 @@ class PaintBoard extends CustomPainter {
 
   PaintBoard(
       this.content, this.listSize, this.rectSize, this.defaultX, this.defaultY);
+  Color hexToColor(String hexColor) {
+    // Remove '#' symbol if present
+    if (hexColor.startsWith('#')) {
+      hexColor = hexColor.substring(1);
+    }
+
+    // Parse hex color string to integer value
+    final int hexValue = int.parse(hexColor, radix: 16);
+
+    // Create a Color object from the integer value
+    return Color(hexValue | 0xFF000000); // Adding alpha value FF (opaque)
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -23,7 +35,7 @@ class PaintBoard extends CustomPainter {
     final bigRect = Rect.fromPoints(Offset(defaultX, defaultY),
         Offset(defaultX + rectSize, defaultY + rectSize));
     final paint = Paint()
-      ..color = const Color.fromARGB(137, 95, 95, 95)
+      ..color = hexToColor(Global.colorList["background"]!)
       ..style = PaintingStyle.fill;
     canvas.drawRRect(
         RRect.fromRectAndRadius(bigRect, const Radius.circular(15)), paint);
@@ -63,8 +75,9 @@ class PaintBoard extends CustomPainter {
           width: rectWidth - 10,
           height: rectHeight - 10);
       final paintSmall = Paint()
-        ..color =
-            Color.fromRGBO(Global.color[0], Global.color[1], Global.color[2], 1)
+        ..color = hexToColor(Global.pitfall.keys.toList().contains(index)
+            ? Global.colorList['pitfall']!
+            : Global.colorList["tile"]!)
         ..style = PaintingStyle.fill;
       canvas.drawRRect(
           RRect.fromRectAndRadius(smallRect, const Radius.circular(15)),

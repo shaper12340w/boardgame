@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flame/game.dart';
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
@@ -24,6 +25,9 @@ class BoardGamePlayer extends SpriteGroupComponent<PlayerState>
   Vector2 pos = Vector2(100, 100);
 
   late int playerNum;
+  bool isMoving = false;
+  List<int> pitfallList = [];
+
   int currentPosition = 0;
   Map<String, double> settings = {
     "velocity": 0,
@@ -41,16 +45,57 @@ class BoardGamePlayer extends SpriteGroupComponent<PlayerState>
 
     setPosition();
 
+    Global.pitfall.forEach((key, value) => pitfallList.add(key));
+
     current = PlayerState.normal;
   }
 
-  bool checkCondition(int index) =>
-      Global.memberPosition[index] != 0 &&
-      Global.memberPosition[index] !=
-          Global.memberPosition.indexWhere((value) => value == 0) &&
-      Global.memberPosition
-          .where((value) => value != 0 && value == Global.memberPosition[index])
-          .isNotEmpty;
+  int checkDuplicated() {
+    //Global.memberPosition.firstWhere((number) => number == Global.memberPosition[playerNum - 1] && )
+    int targetValue = Global.memberPosition[playerNum - 1];
+    int foundIndex = -1;
+
+    Map<int, int> numberMap = Global.memberPosition.asMap();
+    numberMap.forEach((index, value) {
+      if (value == targetValue &&
+          index != (playerNum - 1) &&
+          targetValue != 0) {
+        foundIndex = index;
+      }
+    });
+    return foundIndex; //duplicated된 member
+  }
+
+  void moveAnimation(int pos, {bool? move}) {
+    void moveTo() {
+      final changedPos = Global.positionMap[pos];
+      final changedVector = Vector2(changedPos[0], changedPos[1]);
+      final moveEffect = MoveEffect.to(changedVector, onComplete: () {
+        current = PlayerState.normal;
+        Global.memberPosition[playerNum - 1] = pos;
+        currentPosition = Global.memberPosition[playerNum - 1];
+        isMoving = false;
+        _setPosition(changedVector);
+      }, EffectController(duration: 1, curve: Curves.easeInOut));
+      add(moveEffect);
+    }
+
+    isMoving = true;
+    if (move is bool) {
+      if (move) {
+        final changedPos =
+            Global.positionMap[Global.memberPosition[playerNum - 1]];
+        final changedVector = Vector2(changedPos[0], changedPos[1]);
+        final moveEffect = MoveEffect.to(changedVector, onComplete: () {
+          current = PlayerState.cry;
+          moveTo();
+        }, EffectController(duration: 1, curve: Curves.easeInOut));
+        add(moveEffect);
+      }
+    } else {
+      moveTo();
+    }
+  }
 
   void _setPosition(Vector2 vector) {
     position = vector;
@@ -82,18 +127,25 @@ class BoardGamePlayer extends SpriteGroupComponent<PlayerState>
         }
       } else {
         // 위치가 0이 아닐 경우 포지션으로 설정
-        /**
-          return Vector2(mapData[Global.memberPosition[playerNum - 1]][0],
-            mapData[Global.memberPosition[playerNum - 1]][1]);
-         */
-        if (Global.memberPosition[playerNum - 1] != currentPosition) {
-          currentPosition = Global.memberPosition[playerNum - 1];
-          final changedPos = mapData[Global.memberPosition[playerNum - 1]];
-          final changedVector = Vector2(changedPos[0], changedPos[1]);
-          final moveEffect = MoveEffect.to(changedVector, onComplete: () {
-            _setPosition(changedVector);
-          }, EffectController(duration: 1, curve: Curves.easeInOut));
-          add(moveEffect);
+        if (!isMoving) {
+          if (pitfallList.contains(Global.memberPosition[playerNum - 1])) {
+            //함정
+            final gotoNum =
+                Global.pitfall[Global.memberPosition[playerNum - 1]];
+            moveAnimation(gotoNum!, move: true);
+          } else if (Global.memberPosition[playerNum - 1] != currentPosition) {
+            final duplicatedMember = checkDuplicated();
+            print("겹친 맴버 : " +
+                (duplicatedMember + 1).toString() +
+                "\n이동한 맴버 : " +
+                playerNum.toString());
+            if (duplicatedMember > -1) {
+              Global.memberPosition[duplicatedMember] = 0;
+            }
+            //일반적으로 위치 바꼈을떄
+            //외부에서 Global.memberPosition을 바꿨을때
+            moveAnimation(Global.memberPosition[playerNum - 1]);
+          }
         }
       }
     } else {

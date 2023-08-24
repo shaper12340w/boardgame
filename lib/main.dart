@@ -36,9 +36,14 @@ class BoardGameBoardState extends State<BoardGameBoard> {
 
   void gameWin(String member) {}
 
-  void moveMember() {
+  void moveMember(BuildContext context) {
     setState(() {
-      Global.memberPosition[0]++;
+      final ranMember = Random().nextInt(Global.memberCount - 1);
+      if (game.playerList[ranMember].isMoving) {
+        print('아직 이동중입니다!');
+      } else {
+        Global.memberPosition[ranMember]++;
+      }
     });
   }
 
@@ -47,8 +52,10 @@ class BoardGameBoardState extends State<BoardGameBoard> {
     final List<Widget> mainContents = [
       Center(child: GameWidget(game: game)),
       Center(
-          child:
-              ElevatedButton(onPressed: moveMember, child: const Text("테스트용"))),
+          child: ElevatedButton(
+        onPressed: () => moveMember(context),
+        child: const Text("테스트용"),
+      )),
     ];
 
     return MaterialApp(
