@@ -41,6 +41,8 @@ dependencies:
   image_picker: ^1.0.2
   google_fonts: ^5.1.0
   flame_svg: ^1.8.1
+  web_socket_channel: ^2.4.0
+  roulette: ^0.1.5
   window_size:
     git:
       url: https://github.com/google/flutter-desktop-embedding

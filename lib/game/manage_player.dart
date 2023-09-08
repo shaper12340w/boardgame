@@ -6,6 +6,7 @@ import 'package:flame/effects.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 
+import './move_player.dart';
 import './manage_boardgame.dart';
 import '../global.dart';
 
@@ -27,7 +28,7 @@ class BoardGamePlayer extends SpriteGroupComponent<PlayerState>
   late int playerNum;
   bool isMoving = false;
   List<int> pitfallList = [];
-
+  int diceNumber = 0;
   int currentPosition = 0;
   Map<String, double> settings = {
     "velocity": 0,
@@ -130,9 +131,11 @@ class BoardGamePlayer extends SpriteGroupComponent<PlayerState>
         if (!isMoving) {
           if (pitfallList.contains(Global.memberPosition[playerNum - 1])) {
             //함정
-            final gotoNum =
-                Global.pitfall[Global.memberPosition[playerNum - 1]];
+            final gotoNum = Global.pitfall[
+                Global.memberPosition[playerNum - 1] % Global.content.length];
             moveAnimation(gotoNum!, move: true);
+          } else if (MovePlayer.memberIsland[playerNum - 1]) {
+            return;
           } else if (Global.memberPosition[playerNum - 1] != currentPosition) {
             final duplicatedMember = checkDuplicated();
             print("겹친 맴버 : " +

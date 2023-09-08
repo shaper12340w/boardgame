@@ -2,22 +2,22 @@ class Global {
   static double rectSize = 800;
   static double size = ((content.length - 4) / 4) + 2;
   static List<String> content = [
-    "안녕",
-    "하세요",
-    "저는",
-    "사람",
-    "입니다",
-    "ㅋㅋ",
-    "와",
-    "센즈",
-    "아시는구나",
-    "겁나",
-    "어렵습니다",
-    "ㄹㅇ",
-    "ㅋㅋ",
-    "이거",
-    "치는게",
-    "더힘듦ㄹㅇ",
+    "a",
+    "b",
+    "c",
+    "d",
+    "e",
+    "f",
+    "g",
+    "h",
+    "i",
+    "j",
+    "k",
+    "l",
+    "m",
+    "n",
+    "o",
+    "p",
   ];
   static Map<int, int> pitfall = {
     3: 0
@@ -31,6 +31,9 @@ class Global {
   static const double fontSize = 15;
   // variables
   static List<List<double>> positionMap = [];
+  static List<double> islandPosition = [];
+  static List<int> memberDiceValue =
+      List.generate(Global.memberCount, (index) => 0);
   static List<int> memberPosition =
       List.generate(Global.memberCount, (index) => 0);
 }

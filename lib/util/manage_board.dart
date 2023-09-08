@@ -24,6 +24,37 @@ class PaintBoard extends CustomPainter {
     return Color(hexValue | 0xFF000000); // Adding alpha value FF (opaque)
   }
 
+  void drawSmallRect(Canvas canvas, double rectWidth, double rectHeight,
+      double pX, double pY, int? index) {
+    final smallRect = Rect.fromCenter(
+        center: Offset(pX + defaultX, pY + defaultY),
+        width: rectWidth - 10,
+        height: rectHeight - 10);
+    final paintSmall = Paint()
+      ..color = hexToColor(Global.pitfall.keys.toList().contains(index)
+          ? Global.colorList['pitfall']!
+          : Global.colorList["tile"]!)
+      ..style = PaintingStyle.fill;
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(smallRect, const Radius.circular(15)),
+        paintSmall);
+
+    final textPainter = TextPainter(
+        text: TextSpan(
+          text: index is int ? content[index] : "무인도",
+          style: GoogleFonts.audiowide(
+              textStyle: const TextStyle(
+                  fontSize: Global.fontSize, color: Colors.black87)),
+        ),
+        textDirection: TextDirection.ltr,
+        textAlign: TextAlign.center);
+    textPainter.layout();
+    textPainter.paint(
+        canvas,
+        Offset(pX - textPainter.width / 2 + defaultX,
+            pY - textPainter.height / 2 + defaultY));
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
     if (listSize.toInt().toDouble() != listSize) {
@@ -70,35 +101,13 @@ class PaintBoard extends CustomPainter {
       }
       final pX = rectWidth / 2 + placeX;
       final pY = rectHeight / 2 + placeY;
-      final smallRect = Rect.fromCenter(
-          center: Offset(pX + defaultX, pY + defaultY),
-          width: rectWidth - 10,
-          height: rectHeight - 10);
-      final paintSmall = Paint()
-        ..color = hexToColor(Global.pitfall.keys.toList().contains(index)
-            ? Global.colorList['pitfall']!
-            : Global.colorList["tile"]!)
-        ..style = PaintingStyle.fill;
-      canvas.drawRRect(
-          RRect.fromRectAndRadius(smallRect, const Radius.circular(15)),
-          paintSmall);
-
-      final textPainter = TextPainter(
-          text: TextSpan(
-            text: content[index],
-            style: GoogleFonts.audiowide(
-                textStyle: const TextStyle(
-                    fontSize: Global.fontSize, color: Colors.black87)),
-          ),
-          textDirection: TextDirection.ltr,
-          textAlign: TextAlign.center);
-      textPainter.layout();
-      textPainter.paint(
-          canvas,
-          Offset(pX - textPainter.width / 2 + defaultX,
-              pY - textPainter.height / 2 + defaultY));
+      drawSmallRect(canvas, rectWidth, rectHeight, pX, pY, index);
       Global.positionMap.add([pX + defaultX, pY + defaultY]);
     }
+    //무인도 그리기
+    drawSmallRect(
+        canvas, rectWidth, rectHeight, rectSize / 2, rectSize / 2, null);
+    Global.islandPosition = [rectSize / 2 + defaultX, rectSize / 2 + defaultY];
   }
 
   @override

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:boardgame/game/move_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -37,25 +38,30 @@ class BoardGameBoardState extends State<BoardGameBoard> {
   void gameWin(String member) {}
 
   void moveMember(BuildContext context) {
-    setState(() {
-      final ranMember = Random().nextInt(Global.memberCount - 1);
-      if (game.playerList[ranMember].isMoving) {
-        print('아직 이동중입니다!');
-      } else {
-        Global.memberPosition[ranMember]++;
-      }
-    });
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> mainContents = [
       Center(child: GameWidget(game: game)),
-      Center(
-          child: ElevatedButton(
-        onPressed: () => moveMember(context),
-        child: const Text("테스트용"),
-      )),
+      StreamBuilder(
+        stream: MovePlayer.getDiceNumber(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            final data = snapshot.data;
+            MovePlayer.checkTurn(int.parse('$data'));
+            print('$data');
+            return const CircularProgressIndicator();
+          } else if (snapshot.hasError) {
+            // 에러 처리
+            return Text('Error: ${snapshot.error}');
+          } else {
+            // 초기 로딩 상태 등을 처리할 수 있습니다.
+            return const CircularProgressIndicator();
+          }
+        },
+      )
     ];
 
     return MaterialApp(

@@ -408,6 +408,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.5"
+  roulette:
+    dependency: "direct main"
+    description:
+      name: roulette
+      sha256: "5480d2657c1269a51f2c1fdaa34f363d098025c7148469a22b4e0cf343f05655"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.5"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -525,6 +533,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  web_socket_channel:
+    dependency: "direct main"
+    description:
+      name: web_socket_channel
+      sha256: d88238e5eac9a42bb43ca4e721edba3c08c6354d4a53063afaa568516217621b
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.0"
   win32:
     dependency: transitive
     description:
