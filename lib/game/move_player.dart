@@ -1,6 +1,8 @@
+import 'dart:math';
+
 import "../global.dart";
+import './manage_boardgame.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:web_socket_channel/status.dart' as status;
 
 /**
  * 넣을 기능들
@@ -58,11 +60,22 @@ class MovePlayer {
     memberIsland[playerNumber] = true;
   }
 
+  static shufflePosition() {
+    Global.memberPosition.shuffle(Random());
+  }
+
+  static oneMore() {
+    turnNum = turnNum == 0 ? Global.memberCount - 1 : turnNum - 1;
+  }
+
+  static roulette() {}
+
   static void move(int player, int plus) {
     final duplicatedPlayer =
         _findElementIndex(Global.memberPosition, plus, player);
     if (duplicatedPlayer > 0) {
       Global.memberPosition[duplicatedPlayer] = 0;
+      print("작동됨 | ${Global.memberPosition}");
     }
     Global.memberPosition[player] += plus;
   }

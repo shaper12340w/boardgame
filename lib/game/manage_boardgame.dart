@@ -6,9 +6,11 @@ import './manage_backgroud.dart';
 
 class BoardGame extends FlameGame {
   BoardGame({super.children});
-
+  late final RouterComponent router;
   final Background background = Background();
   List<BoardGamePlayer> playerList = [];
+  bool isDisplayed = false;
+
   @override
   Future<void> onLoad() async {
     for (int index = 1; index <= Global.memberCount; index++) {
@@ -23,6 +25,10 @@ class BoardGame extends FlameGame {
 
   @override
   void update(double dt) {
+    if (!isDisplayed && Global.isWin) {
+      overlays.add("gameOver");
+      isDisplayed = !isDisplayed;
+    }
     super.update(dt);
   }
 }

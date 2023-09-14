@@ -15,7 +15,7 @@ enum PlayerState { normal, cry, fun, angry }
 Function eq = const ListEquality().equals;
 
 class BoardGamePlayer extends SpriteGroupComponent<PlayerState>
-    with HasGameRef<BoardGame>, KeyboardHandler, CollisionCallbacks {
+    with HasGameRef<BoardGame>, CollisionCallbacks {
   BoardGamePlayer({
     required this.playerNum,
   }) : super(
@@ -27,6 +27,7 @@ class BoardGamePlayer extends SpriteGroupComponent<PlayerState>
 
   late int playerNum;
   bool isMoving = false;
+  bool checkSet = false;
   List<int> pitfallList = [];
   int diceNumber = 0;
   int currentPosition = 0;
@@ -41,6 +42,12 @@ class BoardGamePlayer extends SpriteGroupComponent<PlayerState>
     await super.onLoad();
 
     await add(CircleHitbox());
+
+    await add(TextBoxComponent(
+        text: Global.name[playerNum - 1],
+        pixelRatio: 10,
+        align: Anchor.centerLeft,
+        position: Vector2(-50, 30)));
 
     await _loadCharacterSprites();
 
@@ -99,6 +106,7 @@ class BoardGamePlayer extends SpriteGroupComponent<PlayerState>
   }
 
   void _setPosition(Vector2 vector) {
+    print("setPosition");
     position = vector;
     pos = vector;
   }
@@ -107,7 +115,8 @@ class BoardGamePlayer extends SpriteGroupComponent<PlayerState>
     var mapData = Global.positionMap;
     if (mapData.isNotEmpty) {
       //Mapdata가 있을 경우
-      if (Global.memberPosition[playerNum - 1] == 0) {
+      if (Global.memberPosition[playerNum - 1] == 0 && !checkSet) {
+        print("0 position set");
         //맵 위치가 0일경우
         final smallRectSize = (Global.rectSize / Global.size) / 4;
         switch (playerNum) {
@@ -126,6 +135,7 @@ class BoardGamePlayer extends SpriteGroupComponent<PlayerState>
           default:
             throw Exception("not valid memberCount");
         }
+        checkSet = true;
       } else {
         // 위치가 0이 아닐 경우 포지션으로 설정
         if (!isMoving) {
@@ -138,15 +148,17 @@ class BoardGamePlayer extends SpriteGroupComponent<PlayerState>
             return;
           } else if (Global.memberPosition[playerNum - 1] != currentPosition) {
             final duplicatedMember = checkDuplicated();
-            print("겹친 맴버 : " +
-                (duplicatedMember + 1).toString() +
-                "\n이동한 맴버 : " +
-                playerNum.toString());
+            print(Global.memberPosition);
             if (duplicatedMember > -1) {
               Global.memberPosition[duplicatedMember] = 0;
             }
+            if (Global.memberPosition[playerNum - 1] > Global.content.length) {
+              Global.isWin = true;
+            }
             //일반적으로 위치 바꼈을떄
             //외부에서 Global.memberPosition을 바꿨을때
+
+            print(Global.memberPosition);
             moveAnimation(Global.memberPosition[playerNum - 1]);
           }
         }

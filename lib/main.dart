@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import './util/color_schemes.dart';
 import './util/check_platform.dart';
 
+import './game/page.dart';
 import './game/manage_boardgame.dart';
 import './global.dart';
 
@@ -43,8 +44,59 @@ class BoardGameBoardState extends State<BoardGameBoard> {
 
   @override
   Widget build(BuildContext context) {
+    Future<void> _showMyDialog(String msg) async {
+      return showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("질문"), // Remove const here
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text(msg),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: Text('Success'), // Remove const here
+                onPressed: () {
+                  final todoAction = Global
+                      .specialTile[Global.memberPosition[MovePlayer.turnNum]];
+                  if (todoAction!.containsKey("success")) {
+                    Global.memberPosition[MovePlayer.turnNum] =
+                        todoAction["sucess"];
+                  }
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: Text('Fail'), // Remove const here
+                onPressed: () {
+                  final todoAction = Global
+                      .specialTile[Global.memberPosition[MovePlayer.turnNum]];
+                  if (todoAction!.containsKey("fail")) {
+                    Global.memberPosition[MovePlayer.turnNum] =
+                        todoAction["fail"];
+                  }
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+
     final List<Widget> mainContents = [
-      Center(child: GameWidget(game: game)),
+      Center(
+          child: GameWidget(
+        game: game,
+        overlayBuilderMap: {
+          'gameOver': (context, game) => const Notice(),
+        },
+      )),
       StreamBuilder(
         stream: MovePlayer.getDiceNumber(),
         builder: (context, snapshot) {
@@ -86,11 +138,16 @@ class BoardGameBoardState extends State<BoardGameBoard> {
         ),
         floatingActionButton: FloatingActionButton(
           // When the user taps the button
-          onPressed: () {
+          onPressed: () async {
             // Use setState to rebuild the widget with new values.
-            setState(() {
-              // Create a random number generator.
-            });
+            final todoAction =
+                Global.specialTile[Global.memberPosition[MovePlayer.turnNum]];
+            if (todoAction is Map) {
+              if (todoAction!.containsKey("execute")) {
+                todoAction["execute"](MovePlayer.turnNum);
+              }
+              return _showMyDialog(todoAction['text']);
+            }
           },
           child: const Icon(Icons.play_arrow),
         ),
